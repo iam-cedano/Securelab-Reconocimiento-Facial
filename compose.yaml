@@ -1,0 +1,18 @@
+services:
+  test:
+    build: .
+    command: python -m unittest discover -s tests -v
+
+  simulator:
+    build: .
+    command: python tools/simulate_device.py
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SUPABASE_FUNCTION_URL: ${SUPABASE_FUNCTION_URL:-http://host.docker.internal:54321/functions/v1/camera-capture}
+      DEVICE_API_TOKEN: ${DEVICE_API_TOKEN:-local-development-token}
+      DEVICE_ID: ${DEVICE_ID:-docker-camera}
+      PHOTO_FILE: ${PHOTO_FILE:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

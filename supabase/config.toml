@@ -1,0 +1,4 @@
+project_id = "securelab-reconocimiento-facial"
+
+[functions.camera-capture]
+verify_jwt = false
