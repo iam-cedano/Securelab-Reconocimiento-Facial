@@ -42,8 +42,15 @@ cp .env.example .env
 docker compose run --rm simulator
 ```
 
-`PHOTO_FILE` puede apuntar a un JPEG accesible dentro del contenedor. Si no se
-define, el simulador envía un JPEG mínimo útil para probar el flujo.
+Si no se define `PHOTO_FILE`, el simulador envía un JPEG válido de 1x1. Para
+verificar una fotografía propia, montarla dentro del contenedor:
+
+```bash
+docker compose run --rm \
+  -v "$PWD/photo.jpg:/photo.jpg:ro" \
+  -e PHOTO_FILE=/photo.jpg \
+  simulator
+```
 
 ## Preparar Supabase
 

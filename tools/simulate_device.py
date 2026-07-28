@@ -1,5 +1,6 @@
 """Run one firmware polling cycle with a file-backed camera in CPython."""
 
+import base64
 import os
 import sys
 import urllib.error
@@ -42,8 +43,20 @@ class StdlibTransport:
 
 
 class FileCamera:
-    # Valid enough for upload testing; use PHOTO_FILE for an actual photograph.
-    FALLBACK_JPEG = b"\xff\xd8\xff\xe0" + b"ESP32-CAM-SIMULATION" + b"\xff\xd9"
+    # A valid 1x1 JPEG; use PHOTO_FILE to visually verify a real photograph.
+    FALLBACK_JPEG = base64.b64decode(
+        b"/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////"
+        b"////////////////////////////////////////2wBDAf///////////////"
+        b"////////////////////////////////////////////wAARCAABAAEDASIAAh"
+        b"EBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAA"
+        b"AAAA/9oADAMBAAIQAxAAAAF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQ"
+        b"ABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAwEBPwF//8QAFBEBAAAA"
+        b"AAAAAAAAAAAAAAAAAP/aAAgBAgEBPwF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP"
+        b"/aAAgBAQAGPwJ//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPyF//9oA"
+        b"DAMBAAIAAwAAABD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDAQE/EF//xA"
+        b"AUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAECAQE/EF//xAAUEAEAAAAAAAAAAAAA"
+        b"AAAAAAAA/9oACAEBAAE/EF//9k="
+    )
 
     def __init__(self, path):
         self.path = path
