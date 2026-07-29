@@ -37,6 +37,7 @@ def main():
         config.DEVICE_API_TOKEN,
         config.DEVICE_ID,
         MicroPythonTransport(),
+        getattr(config, "AUTHORIZATION_TOKEN", None),
     )
 
     while True:

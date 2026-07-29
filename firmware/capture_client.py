@@ -9,19 +9,32 @@ except ImportError:
 class CaptureApiError(Exception):
     pass
 
-
 class CaptureClient:
-    def __init__(self, function_url, device_token, device_id, transport):
+    def __init__(
+        self,
+        function_url,
+        device_token,
+        device_id,
+        transport,
+        authorization_token=None,
+    ):
         self.function_url = function_url.rstrip("/")
         self.device_token = device_token
         self.device_id = device_id
         self.transport = transport
+        self.authorization_token = authorization_token
 
     def _headers(self):
-        return {
+        headers = {
             "x-device-token": self.device_token,
             "x-device-id": self.device_id,
         }
+        if self.authorization_token:
+            if self.authorization_token.startswith("Bearer "):
+                headers["Authorization"] = self.authorization_token
+            else:
+                headers["Authorization"] = "Bearer " + self.authorization_token
+        return headers
 
     @staticmethod
     def _error(response):

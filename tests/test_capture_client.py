@@ -22,9 +22,11 @@ class FakeTransport:
     def __init__(self, get_response=None, post_response=None):
         self.get_response = get_response
         self.post_response = post_response
+        self.last_get_headers = None
         self.post_call = None
 
     def get(self, url, headers):
+        self.last_get_headers = headers
         return self.get_response
 
     def post(self, url, headers, data):
@@ -43,12 +45,13 @@ class FakeCamera:
 
 
 class CaptureClientTests(unittest.TestCase):
-    def client(self, transport):
+    def client(self, transport, authorization_token=None):
         return CaptureClient(
             "https://example.supabase.co/functions/v1/camera-capture/",
             "token",
             "camera-1",
             transport,
+            authorization_token,
         )
 
     def test_no_pending_capture_does_not_use_camera(self):
@@ -83,6 +86,36 @@ class CaptureClientTests(unittest.TestCase):
         )
         self.assertTrue(claim.closed)
         self.assertTrue(uploaded.closed)
+
+    def test_authorization_header_is_optional(self):
+        response = FakeResponse(204)
+        transport = FakeTransport(get_response=response)
+
+        self.client(transport).claim_pending()
+
+        self.assertNotIn("Authorization", transport.last_get_headers)
+
+    def test_authorization_token_adds_bearer_header(self):
+        response = FakeResponse(204)
+        transport = FakeTransport(get_response=response)
+
+        self.client(transport, "publishable-token").claim_pending()
+
+        self.assertEqual(
+            transport.last_get_headers["Authorization"],
+            "Bearer publishable-token",
+        )
+
+    def test_authorization_token_accepts_existing_bearer_prefix(self):
+        response = FakeResponse(204)
+        transport = FakeTransport(get_response=response)
+
+        self.client(transport, "Bearer publishable-token").claim_pending()
+
+        self.assertEqual(
+            transport.last_get_headers["Authorization"],
+            "Bearer publishable-token",
+        )
 
     def test_api_error_includes_response_and_closes_it(self):
         response = FakeResponse(401, '{"error":"unauthorized device"}')

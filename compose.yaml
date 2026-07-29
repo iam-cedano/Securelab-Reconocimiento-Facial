@@ -13,6 +13,11 @@ services:
       SUPABASE_FUNCTION_URL: ${SUPABASE_FUNCTION_URL:-http://host.docker.internal:54321/functions/v1/camera-capture}
       DEVICE_API_TOKEN: ${DEVICE_API_TOKEN:-local-development-token}
       DEVICE_ID: ${DEVICE_ID:-docker-camera}
+      AUTHORIZATION_TOKEN: ${AUTHORIZATION_TOKEN:-}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-5}
+      RUN_ONCE: ${RUN_ONCE:-}
       PHOTO_FILE: ${PHOTO_FILE:-}
+    volumes: 
+      - ./photos:/app/photos
     extra_hosts:
       - "host.docker.internal:host-gateway"

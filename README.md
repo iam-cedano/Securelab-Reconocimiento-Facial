@@ -42,6 +42,12 @@ cp .env.example .env
 docker compose run --rm simulator
 ```
 
+El simulador queda en ejecución y consulta la función cada
+`POLL_INTERVAL_SECONDS` segundos. Cuando no hay filas pendientes, mantiene la
+salida en silencio e imprime `No pendient row were found in the last ten minutes`
+solo una vez cada diez minutos. Para ejecutar un único ciclo y salir, definir
+`RUN_ONCE=true`.
+
 Si no se define `PHOTO_FILE`, el simulador envía un JPEG válido de 1x1. Para
 verificar una fotografía propia, montarla dentro del contenedor:
 
@@ -67,6 +73,15 @@ Copiar el mismo token a `.env` para el simulador y a
 `firmware/config.py` para el dispositivo. No usar una publishable key ni una
 service-role key como `DEVICE_API_TOKEN`.
 
+`DEVICE_API_TOKEN` es el secreto propio del dispositivo y debe coincidir con el
+secreto configurado en la Edge Function. `AUTHORIZATION_TOKEN` es distinto: solo
+se usa como `Authorization: Bearer ...` cuando Supabase exige un JWT o una
+publishable/anon key antes de ejecutar la función. Si aparece
+`UNAUTHORIZED_NO_AUTH_HEADER`, falta `AUTHORIZATION_TOKEN` o la función no fue
+desplegada con `verify_jwt = false`. Si aparece `unauthorized device`, la
+función sí se ejecutó, pero `DEVICE_API_TOKEN` no coincide con el secreto del
+servidor.
+
 La migración:
 
 - agrega estado de reclamación y reintentos a
@@ -76,6 +91,11 @@ La migración:
 
 Las reclamaciones que no terminan vuelven a estar disponibles después de dos
 minutos.
+
+La función no crea filas en `reconocimientos_faciales`: primero reclama una fila
+existente con `resultado = 'captura_requerida'` y `url_foto` vacío, y después
+actualiza esa misma fila. La carga de la fotografía sí crea un objeto nuevo en
+Storage, visible en el bucket `capturas-faciales`.
 
 ## Instalar en el ESP32-CAM
 
